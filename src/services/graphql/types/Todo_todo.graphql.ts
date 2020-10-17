@@ -5,9 +5,9 @@
 import { ReaderFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Todo_todo = {
-    readonly complete: boolean;
+    readonly complete: boolean | null;
     readonly id: string;
-    readonly text: string;
+    readonly text: string | null;
     readonly " $refType": "Todo_todo";
 };
 export type Todo_todo$data = Todo_todo;

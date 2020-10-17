@@ -1,22 +1,82 @@
-import React, {FC} from 'react';
-import {View, Text} from 'react-native';
-import {ListItem, Input, CheckBox} from 'react-native-elements';
-import {createFragmentContainer, graphql} from 'react-relay';
-import { Todo_todo } from '../../services/graphql/types/Todo_todo.graphql';
-import { Todo_user } from '../../services/graphql/types/Todo_user.graphql';
+import React, {FC, useState, useCallback} from 'react';
+import {ListItem, Icon} from 'react-native-elements';
+import {createFragmentContainer, graphql, RelayProp} from 'react-relay';
+import {Todo_todo} from '../../services/graphql/types/Todo_todo.graphql';
+import {Todo_viewer} from '../../services/graphql/types/Todo_viewer.graphql';
+import ChangeTodoStatusMutation from '../../services/graphql/mutations/ChangeTodoStatusMutation';
+import RemoveTodoMutation from '../../services/graphql/mutations/RemoveTodoMutation';
+import TodoTextInput from './TodoTextInput';
+import RenameTodoMutation from '../../services/graphql/mutations/RenameTodoMutation';
 
-type Props = {
+interface Props {
+  relay: RelayProp;
   todo: Todo_todo;
-  user: Todo_user;
-};
+  viewer: Todo_viewer;
+}
 
-const Todo: FC<Props> = ({todo: {complete, text}}) => {
+const Todo: FC<Props> = ({relay, todo, viewer}) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const {complete, text} = todo;
+
+  const handleCompleteChange = useCallback(() => {
+    ChangeTodoStatusMutation.commit(
+      relay?.environment,
+      !complete,
+      todo,
+      viewer,
+    );
+  }, [complete, todo, viewer]);
+
+  const handleDestroyClick = () => removeTodo();
+
+  const handleItemPress = () => setIsEditing(true);
+
+  const handleTextInputCancel = () => setIsEditing(false);
+
+  const handleTextInputDelete = () => {
+    setIsEditing(false);
+    removeTodo();
+  };
+
+  const handleTextInputSave = useCallback(
+    (text: string) => {
+      setIsEditing(false);
+      RenameTodoMutation.commit(relay?.environment, text, todo);
+    },
+    [relay, todo],
+  );
+
+  const removeTodo = useCallback(() => {
+    RemoveTodoMutation.commit(relay?.environment, todo, viewer);
+  }, [relay, todo, viewer]);
+
+  const renderTextInput = () => (
+    <TodoTextInput
+      commitOnBlur
+      defaultValue={todo.text ?? ''}
+      onSave={handleTextInputSave}
+      onDelete={handleTextInputDelete}
+      onCancel={handleTextInputCancel}
+    />
+  );
+
   return (
-    <ListItem>
-      <ListItem.CheckBox checked={complete} />
+    <ListItem onPress={handleItemPress}>
+      <ListItem.CheckBox checked={!!complete} onPress={handleCompleteChange} />
       <ListItem.Content>
-        <ListItem.Title>{text}</ListItem.Title>
+        {isEditing ? (
+          renderTextInput()
+        ) : (
+          <ListItem.Title
+            style={{
+              textDecorationLine: complete ? 'line-through' : 'none',
+            }}>
+            {text}
+          </ListItem.Title>
+        )}
       </ListItem.Content>
+      <Icon type="ionicon" name="ios-close" onPress={handleDestroyClick} size={35}/>
     </ListItem>
   );
 };
@@ -29,10 +89,9 @@ export default createFragmentContainer(Todo, {
       text
     }
   `,
-  user: graphql`
-    fragment Todo_user on User {
+  viewer: graphql`
+    fragment Todo_viewer on User {
       id
-      userId
       totalCount
       completedCount
     }

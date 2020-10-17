@@ -4,30 +4,39 @@
 
 import { ReaderFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
-export type TodoList_user = {
+export type TodoList_viewer = {
     readonly todos: {
         readonly edges: ReadonlyArray<{
             readonly node: {
+                readonly id: string;
+                readonly complete: boolean | null;
                 readonly " $fragmentRefs": FragmentRefs<"Todo_todo">;
             } | null;
         } | null> | null;
     } | null;
     readonly id: string;
-    readonly userId: string;
-    readonly totalCount: number;
-    readonly completedCount: number;
-    readonly " $fragmentRefs": FragmentRefs<"Todo_user">;
-    readonly " $refType": "TodoList_user";
+    readonly totalCount: number | null;
+    readonly completedCount: number | null;
+    readonly " $fragmentRefs": FragmentRefs<"Todo_viewer">;
+    readonly " $refType": "TodoList_viewer";
 };
-export type TodoList_user$data = TodoList_user;
-export type TodoList_user$key = {
-    readonly " $data"?: TodoList_user$data;
-    readonly " $fragmentRefs": FragmentRefs<"TodoList_user">;
+export type TodoList_viewer$data = TodoList_viewer;
+export type TodoList_viewer$key = {
+    readonly " $data"?: TodoList_viewer$data;
+    readonly " $fragmentRefs": FragmentRefs<"TodoList_viewer">;
 };
 
 
 
-const node: ReaderFragment = {
+const node: ReaderFragment = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
@@ -42,7 +51,7 @@ const node: ReaderFragment = {
       }
     ]
   },
-  "name": "TodoList_user",
+  "name": "TodoList_viewer",
   "selections": [
     {
       "alias": "todos",
@@ -68,6 +77,14 @@ const node: ReaderFragment = {
               "name": "node",
               "plural": false,
               "selections": [
+                (v0/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "complete",
+                  "storageKey": null
+                },
                 {
                   "alias": null,
                   "args": null,
@@ -121,20 +138,7 @@ const node: ReaderFragment = {
       ],
       "storageKey": null
     },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "userId",
-      "storageKey": null
-    },
+    (v0/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -152,11 +156,12 @@ const node: ReaderFragment = {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "Todo_user"
+      "name": "Todo_viewer"
     }
   ],
   "type": "User",
   "abstractKey": null
 };
-(node as any).hash = '5c1d2bf0a5d92326f71549c581448d25';
+})();
+(node as any).hash = 'a3e4165e516c834231092d435f5dd81c';
 export default node;

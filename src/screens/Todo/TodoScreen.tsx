@@ -1,18 +1,18 @@
 import React from 'react';
-import {View, Text, SafeAreaView} from 'react-native';
-import {QueryRenderer, graphql} from 'react-relay';
-import TodoList from './TodoList';
-import {TodoScreenQuery} from '../../services/graphql/types/TodoScreenQuery.graphql';
+import {SafeAreaView, Text} from 'react-native';
+import {graphql, QueryRenderer} from 'react-relay';
 import relayEnvironment from '../../services/graphql/relayEnvironment';
+import {TodoScreenQuery} from '../../services/graphql/types/TodoScreenQuery.graphql';
+import TodoApp from './TodoApp';
 
 const TodoScreen = () => {
   return (
     <QueryRenderer<TodoScreenQuery>
       environment={relayEnvironment}
       query={graphql`
-        query TodoScreenQuery($userId: String) {
-          user(id: $userId) {
-            ...TodoList_user
+        query TodoScreenQuery {
+          viewer {
+            ...TodoApp_viewer
           }
         }
       `}
@@ -21,19 +21,17 @@ const TodoScreen = () => {
           return <Text>{error}</Text>;
         }
 
-        if (!props) {
+        if (!props?.viewer) {
           return <Text>Loading...</Text>;
         }
 
         return (
-          <SafeAreaView>
-            <TodoList user={props.user} />
+          <SafeAreaView style={{flex: 1}}>
+            <TodoApp viewer={props.viewer} />
           </SafeAreaView>
         );
       }}
-      variables={{
-        userId: 'me',
-      }}
+      variables={{}}
     />
   );
 };
