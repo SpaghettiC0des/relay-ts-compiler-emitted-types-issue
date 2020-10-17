@@ -10,11 +10,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { commitMutation, graphql } from "react-relay"
-import { Environment } from "relay-runtime"
+import {commitMutation, graphql} from 'react-relay';
+import {Environment} from 'relay-runtime';
 
-import { Todo_todo } from "../types/Todo_todo.graphql"
-import { RenameTodoMutation } from "../types/RenameTodoMutation.graphql"
+import {Todo_todo} from '../types/Todo_todo.graphql';
+import {RenameTodoMutation} from '../types/RenameTodoMutation.graphql';
+import {useMutation} from 'react-relay/hooks';
+import {UseMutationConfig} from 'react-relay/lib/relay-experimental/useMutation';
 
 const mutation = graphql`
   mutation RenameTodoMutation($input: RenameTodoInput!) {
@@ -25,7 +27,7 @@ const mutation = graphql`
       }
     }
   }
-`
+`;
 
 function getOptimisticResponse(text: string, todo: Todo_todo) {
   return {
@@ -35,17 +37,34 @@ function getOptimisticResponse(text: string, todo: Todo_todo) {
         text: text,
       },
     },
-  }
+  };
 }
 
 function commit(environment: Environment, text: string, todo: Todo_todo) {
   return commitMutation<RenameTodoMutation>(environment, {
     mutation,
     variables: {
-      input: { text, id: todo.id },
+      input: {text, id: todo.id},
     },
     optimisticResponse: getOptimisticResponse(text, todo),
-  })
+  });
 }
 
-export default { commit }
+export const useRenameTodoMutation = (todo: Todo_todo) => {
+  const [commit, isInFlight] = useMutation<RenameTodoMutation>(mutation);
+
+  const commitFn = (
+    args: Omit<UseMutationConfig<RenameTodoMutation>, 'optimisticResponse'>,
+  ) =>
+    commit({
+      ...args,
+      optimisticResponse: getOptimisticResponse(
+        args.variables.input.text,
+        todo,
+      ),
+    });
+
+  return [commitFn, isInFlight];
+};
+
+export default {commit};

@@ -1,12 +1,12 @@
 import React, {FC} from 'react';
+import {View} from 'react-native';
+import {Text} from 'react-native-elements';
 import {createFragmentContainer, graphql, RelayProp} from 'react-relay';
 import AddTodoMutation from '../../services/graphql/mutations/AddTodoMutation';
 import {TodoApp_viewer} from '../../services/graphql/types/TodoApp_viewer.graphql';
-import {View} from 'react-native';
-import {Text} from 'react-native-elements';
-import TodoTextInput from './TodoTextInput';
 import TodoList from './TodoList';
 import TodoListFooter from './TodoListFooter';
+import TodoTextInput from './TodoTextInput';
 
 type Props = {
   relay: RelayProp;

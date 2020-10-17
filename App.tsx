@@ -1,4 +1,10 @@
 import React from 'react';
-import TodoScreen from './src/screens/Todo/TodoScreen';
+import TodoScreenRoot from './src/screens/Todo/TodoScreen';
+import {RelayEnvironmentProvider} from 'react-relay/hooks';
+import relayEnvironment from './src/services/graphql/relayEnvironment';
 
-export default () => <TodoScreen />
+export default () => (
+  <RelayEnvironmentProvider environment={relayEnvironment}>
+    <TodoScreenRoot />
+  </RelayEnvironmentProvider>
+);
