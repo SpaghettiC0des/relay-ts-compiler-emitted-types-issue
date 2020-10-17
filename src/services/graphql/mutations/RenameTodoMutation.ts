@@ -10,16 +10,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import {commitMutation, graphql} from 'react-relay';
-import {Environment} from 'relay-runtime';
-
-import {Todo_todo} from '../types/Todo_todo.graphql';
-import {RenameTodoMutation} from '../types/RenameTodoMutation.graphql';
-import {useMutation} from 'react-relay/hooks';
-import {UseMutationConfig} from 'react-relay/lib/relay-experimental/useMutation';
+import { graphql } from 'react-relay';
+import { useMutation } from 'react-relay/hooks';
+import { UseMutationConfig } from 'react-relay/lib/relay-experimental/useMutation';
+import { Disposable } from 'relay-runtime';
+import {
+  RenameTodoMutation,
+  RenameTodoMutationRawResponse,
+  RenameTodoMutationVariables
+} from '../types/RenameTodoMutation.graphql';
 
 const mutation = graphql`
-  mutation RenameTodoMutation($input: RenameTodoInput!) {
+  mutation RenameTodoMutation($input: RenameTodoInput!) @raw_response_type {
     renameTodo(input: $input) {
       todo {
         id
@@ -29,42 +31,35 @@ const mutation = graphql`
   }
 `;
 
-function getOptimisticResponse(text: string, todo: Todo_todo) {
+function getOptimisticResponse(
+  variables: RenameTodoMutationVariables,
+): RenameTodoMutationRawResponse {
+  const {id, text} = variables.input;
   return {
     renameTodo: {
       todo: {
-        id: todo.id,
-        text: text,
+        id,
+        text,
       },
     },
   };
 }
 
-function commit(environment: Environment, text: string, todo: Todo_todo) {
-  return commitMutation<RenameTodoMutation>(environment, {
-    mutation,
-    variables: {
-      input: {text, id: todo.id},
-    },
-    optimisticResponse: getOptimisticResponse(text, todo),
-  });
-}
-
-export const useRenameTodoMutation = (todo: Todo_todo) => {
+export const useRenameTodoMutation = (): [
+  (
+    config: Omit<UseMutationConfig<RenameTodoMutation>, 'optimisticResponse'>,
+  ) => Disposable,
+  boolean,
+] => {
   const [commit, isInFlight] = useMutation<RenameTodoMutation>(mutation);
 
   const commitFn = (
-    args: Omit<UseMutationConfig<RenameTodoMutation>, 'optimisticResponse'>,
+    config: Omit<UseMutationConfig<RenameTodoMutation>, 'optimisticResponse'>,
   ) =>
     commit({
-      ...args,
-      optimisticResponse: getOptimisticResponse(
-        args.variables.input.text,
-        todo,
-      ),
+      ...config,
+      optimisticResponse: getOptimisticResponse(config.variables),
     });
 
   return [commitFn, isInFlight];
 };
-
-export default {commit};

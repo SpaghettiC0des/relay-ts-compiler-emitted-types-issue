@@ -19,9 +19,18 @@ export type RenameTodoMutationResponse = {
         } | null;
     } | null;
 };
+export type RenameTodoMutationRawResponse = {
+    readonly renameTodo: ({
+        readonly todo: ({
+            readonly id: string;
+            readonly text: string | null;
+        }) | null;
+    }) | null;
+};
 export type RenameTodoMutation = {
     readonly response: RenameTodoMutationResponse;
     readonly variables: RenameTodoMutationVariables;
+    readonly rawResponse: RenameTodoMutationRawResponse;
 };
 
 
@@ -118,5 +127,5 @@ return {
   }
 };
 })();
-(node as any).hash = 'de4aa1639055c2e6a78ee22cce29870a';
+(node as any).hash = '5c4130f75de6db52845e7c8af0822ad6';
 export default node;
